@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Satellite, Radio } from 'lucide-react';
+import { ArrowLeft, Satellite, Radio, Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import GPSPanel from '@/components/app/GPSPanel';
 import ConnectionPanel from '@/components/AIS/ConnectionPanel';
@@ -27,6 +28,34 @@ function SettingsCard({
         </div>
       </div>
       <div>{children}</div>
+    </div>
+  );
+}
+
+function ThemeCard() {
+  const { theme, setTheme } = useTheme();
+
+  const options = [
+    { value: 'light', label: 'Light', icon: <Sun className="w-4 h-4" /> },
+    { value: 'dark',  label: 'Dark',  icon: <Moon className="w-4 h-4" /> },
+    { value: 'system', label: 'System', icon: <Monitor className="w-4 h-4" /> },
+  ] as const;
+
+  return (
+    <div className="p-4 flex gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          onClick={() => setTheme(opt.value)}
+          className={`flex-1 flex flex-col items-center gap-1.5 rounded-lg border py-3 text-xs font-medium transition-colors
+            ${theme === opt.value
+              ? 'border-primary bg-primary/10 text-foreground'
+              : 'border-border text-muted-foreground hover:border-primary/50'}`}
+        >
+          {opt.icon}
+          {opt.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -63,6 +92,14 @@ export default function SettingsPage() {
             description="Connect a USB AIS receiver via Web Serial to track nearby vessels in real time."
           >
             <ConnectionPanel />
+          </SettingsCard>
+
+          <SettingsCard
+            icon={<Sun className="w-4 h-4" />}
+            title="Appearance"
+            description="Choose between light, dark, or system theme."
+          >
+            <ThemeCard />
           </SettingsCard>
         </div>
       </main>

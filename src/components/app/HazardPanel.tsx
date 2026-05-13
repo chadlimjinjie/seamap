@@ -48,9 +48,10 @@ export default function HazardPanel() {
   const rerank = useHazardStore((s) => s.rerank);
   const gpsFix = useGPSStore((s) => s.fix);
 
-  // Initial load
+  // Initial load — guard against multiple mounted instances calling load() concurrently
   useEffect(() => {
-    load(gpsFix?.lat, gpsFix?.lon);
+    const { status } = useHazardStore.getState();
+    if (status === 'idle') load(gpsFix?.lat, gpsFix?.lon);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,7 +63,7 @@ export default function HazardPanel() {
   const isLoading = status === 'loading';
 
   return (
-    <div className="p-3 border-b border-border">
+    <div className="p-3 pb-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-1">
           <AlertTriangle className="w-3 h-3" />

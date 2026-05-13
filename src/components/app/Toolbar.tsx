@@ -1,18 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { Anchor, RefreshCw, Radio, Sun, Moon, Settings } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Anchor, RefreshCw, Radio, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useVesselStore } from '@/lib/store/vesselStore';
 
 export default function Toolbar() {
   const vesselCount = useVesselStore((s) => s.vessels.size);
   const connectionState = useVesselStore((s) => s.connectionState);
   const purgeStale = useVesselStore((s) => s.purgeStale);
-  const { resolvedTheme, setTheme } = useTheme();
-
   const stateColor: Record<string, string> = {
     connected: 'text-green-500',
     connecting: 'text-yellow-500 animate-pulse',
@@ -28,7 +26,9 @@ export default function Toolbar() {
   };
 
   return (
-    <header className="h-10 bg-card/90 backdrop-blur-sm border-b border-border flex items-center px-4 gap-3 shrink-0 select-none">
+    <header className="h-10 bg-card/90 backdrop-blur-sm border-b border-border flex items-center px-2 gap-2 shrink-0 select-none">
+      <SidebarTrigger className="h-7 w-7" />
+      <div className="h-4 w-px bg-border" />
       <Anchor className="w-4 h-4 shrink-0" />
       <span className="font-semibold text-sm tracking-wide hidden sm:inline">SeaMap</span>
 
@@ -58,28 +58,6 @@ export default function Toolbar() {
         }>
         </TooltipTrigger>
         <TooltipContent side="bottom">Remove vessels not seen in 10 minutes</TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger render={
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            className="h-7 w-7"
-            aria-label="Toggle theme"
-          >
-            {resolvedTheme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5" />
-            ) : (
-              <Moon className="w-3.5 h-3.5" />
-            )}
-          </Button>
-        }>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          {resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        </TooltipContent>
       </Tooltip>
 
       <Tooltip>

@@ -79,6 +79,9 @@ export const useHazardStore = create<HazardStore>((set, get) => ({
   fromCache: false,
 
   async load(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
+    // Prevent concurrent fetches
+    if (get().status === 'loading') return;
+
     const cached = readCache();
     const now = Date.now();
     const cacheValid = cached != null && (now - cached.fetchedAt) < CACHE_TTL_MS;
