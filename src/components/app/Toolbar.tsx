@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Anchor, RefreshCw, Radio, Settings } from 'lucide-react';
+import { RefreshCw, Radio, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -31,10 +31,6 @@ export default function Toolbar() {
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6 select-none">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto" />
-      <Anchor className="w-4 h-4 shrink-0" />
-      <span className="font-semibold text-base hidden sm:inline">SeaMap</span>
-
-      <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto hidden sm:block" />
 
       <Tooltip>
         <TooltipTrigger className="flex items-center gap-1.5 cursor-default">
