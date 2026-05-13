@@ -6,7 +6,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import HazardPanel from '@/components/app/HazardPanel';
 import VesselList from '@/components/AIS/VesselList';
@@ -25,8 +24,6 @@ export default function AppSidebar({ variant, ...props }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>
-
-      <SidebarSeparator />
 
       <SidebarContent className="overflow-hidden">
         <SidebarGroup className="p-0 h-full flex flex-col">
