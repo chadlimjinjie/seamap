@@ -1,6 +1,7 @@
 'use client';
 
-import { Anchor, RefreshCw, Radio, Sun, Moon } from 'lucide-react';
+import Link from 'next/link';
+import { Anchor, RefreshCw, Radio, Sun, Moon, Settings } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -29,9 +30,9 @@ export default function Toolbar() {
   return (
     <header className="h-10 bg-card/90 backdrop-blur-sm border-b border-border flex items-center px-4 gap-3 shrink-0 select-none">
       <Anchor className="w-4 h-4 shrink-0" />
-      <span className="font-semibold text-sm tracking-wide">SeaMap</span>
+      <span className="font-semibold text-sm tracking-wide hidden sm:inline">SeaMap</span>
 
-      <div className="h-4 w-px bg-border" />
+      <div className="hidden sm:block h-4 w-px bg-border" />
 
       <Tooltip>
         <TooltipTrigger className="flex items-center gap-1.5 cursor-default">
@@ -79,6 +80,22 @@ export default function Toolbar() {
         <TooltipContent side="bottom">
           {resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         </TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            aria-label="Settings"
+            render={<Link href="/settings" />}
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </Button>
+        }>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">Settings</TooltipContent>
       </Tooltip>
     </header>
   );

@@ -26,7 +26,7 @@ export default function VesselDetails() {
   const age = Math.round((Date.now() - v.lastSeen) / 1000);
 
   return (
-    <div className="absolute bottom-4 right-4 w-72 bg-card border border-border rounded-lg shadow-xl text-xs font-mono z-10">
+    <div className="absolute bottom-16 md:bottom-4 left-2 right-2 md:left-auto md:right-4 md:w-72 bg-card border border-border rounded-lg shadow-xl text-xs font-mono z-10">
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
