@@ -11,10 +11,18 @@ const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false }
 
 export default function Home() {
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      className="h-svh overflow-hidden"
+      style={
+        {
+          '--sidebar-width': 'calc(var(--spacing) * 64)',
+          '--header-height': 'calc(var(--spacing) * 10)',
+        } as React.CSSProperties
+      }
+    >
       <GPSAutoStart />
-      <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-0 h-screen overflow-hidden">
+      <AppSidebar variant="inset" />
+      <SidebarInset className="overflow-hidden">
         <Toolbar />
         <div className="relative flex-1 min-h-0">
           <MapView />

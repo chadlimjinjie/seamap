@@ -11,6 +11,7 @@ import { useHazardStore } from '@/lib/store/hazardStore';
 export default function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const hasFlownToGPS = useRef(false);
   const vessels = useVesselStore((s) => s.vessels);
   const selectedMMSI = useVesselStore((s) => s.selectedMMSI);
   const selectVessel = useVesselStore((s) => s.selectVessel);
@@ -332,6 +333,12 @@ export default function MapView() {
       if (!gpsFix) {
         src.setData({ type: 'FeatureCollection', features: [] });
         return;
+      }
+
+      // Fly to GPS location on first fix
+      if (!hasFlownToGPS.current) {
+        hasFlownToGPS.current = true;
+        map.flyTo({ center: [gpsFix.lon, gpsFix.lat], zoom: 13, duration: 1800 });
       }
 
       // Convert accuracy (metres) to approximate pixel radius at current zoom

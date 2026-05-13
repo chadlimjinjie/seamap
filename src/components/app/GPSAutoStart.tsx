@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useGPSStore } from '@/lib/store/gpsStore';
+import { initGPSFromPref } from '@/lib/store/gpsStore';
 
 export default function GPSAutoStart() {
-  const startWatching = useGPSStore((s) => s.startWatching);
-  useEffect(() => { startWatching(); }, [startWatching]);
+  useEffect(() => { initGPSFromPref(); }, []);
   return null;
 }

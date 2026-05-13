@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Anchor, RefreshCw, Radio, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useVesselStore } from '@/lib/store/vesselStore';
@@ -26,13 +27,14 @@ export default function Toolbar() {
   };
 
   return (
-    <header className="h-10 bg-card/90 backdrop-blur-sm border-b border-border flex items-center px-2 gap-2 shrink-0 select-none">
-      <SidebarTrigger className="h-7 w-7" />
-      <div className="h-4 w-px bg-border" />
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6 select-none">
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto" />
       <Anchor className="w-4 h-4 shrink-0" />
-      <span className="font-semibold text-sm tracking-wide hidden sm:inline">SeaMap</span>
+      <span className="font-semibold text-base hidden sm:inline">SeaMap</span>
 
-      <div className="hidden sm:block h-4 w-px bg-border" />
+      <Separator orientation="vertical" className="mx-2 h-4 data-vertical:self-auto hidden sm:block" />
 
       <Tooltip>
         <TooltipTrigger className="flex items-center gap-1.5 cursor-default">
@@ -75,6 +77,7 @@ export default function Toolbar() {
         </TooltipTrigger>
         <TooltipContent side="bottom">Settings</TooltipContent>
       </Tooltip>
+      </div>
     </header>
   );
 }

@@ -12,11 +12,21 @@ export interface GPSFix {
   timestamp: number;
 }
 
+const PREF_KEY = 'seamap-gps-enabled';
+
+function readPref(): boolean {
+  try { return localStorage.getItem(PREF_KEY) === 'true'; } catch { return false; }
+}
+function writePref(v: boolean): void {
+  try { localStorage.setItem(PREF_KEY, String(v)); } catch {}
+}
+
 interface GPSStore {
   status: GPSStatus;
   fix: GPSFix | null;
   error: string | null;
   watchId: number | null;
+  enabled: boolean;
 
   startWatching: () => void;
   stopWatching: () => void;
@@ -29,14 +39,17 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
   fix: null,
   error: null,
   watchId: null,
+  enabled: false, // hydrated by GPSAutoStart from localStorage
 
   startWatching() {
     if (get().watchId != null) return;
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
-      set({ status: 'error', error: 'Geolocation not supported' });
+      set({ status: 'error', error: 'Geolocation not supported', enabled: false });
+      writePref(false);
       return;
     }
-    set({ status: 'watching', error: null });
+    writePref(true);
+    set({ status: 'watching', error: null, enabled: true });
     const id = navigator.geolocation.watchPosition(
       (pos) => {
         get()._setFix({
@@ -58,9 +71,16 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
   stopWatching() {
     const { watchId } = get();
     if (watchId != null) navigator.geolocation.clearWatch(watchId);
-    set({ status: 'idle', watchId: null, fix: null, error: null });
+    writePref(false);
+    set({ status: 'idle', watchId: null, fix: null, error: null, enabled: false });
   },
 
   _setFix(fix) { set({ fix, error: null }); },
   _setError(msg) { set({ status: 'error', error: msg }); },
 }));
+
+/** Call once on client mount to restore persisted preference. */
+export function initGPSFromPref(): void {
+  if (readPref()) useGPSStore.getState().startWatching();
+  else useGPSStore.setState({ enabled: false });
+}

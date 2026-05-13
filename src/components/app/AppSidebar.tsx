@@ -11,9 +11,13 @@ import {
 import HazardPanel from '@/components/app/HazardPanel';
 import VesselList from '@/components/AIS/VesselList';
 
-export default function AppSidebar() {
+type AppSidebarProps = React.ComponentProps<'div'> & {
+  variant?: 'sidebar' | 'floating' | 'inset';
+};
+
+export default function AppSidebar({ variant, ...props }: AppSidebarProps) {
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar collapsible="offcanvas" variant={variant} {...props}>
       <SidebarHeader className="border-b border-sidebar-border px-0 py-0">
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
