@@ -12,6 +12,8 @@ interface MapState {
   setBearing: (b: number) => void;
   flyToCmd: FlyToCommand | null;
   flyTo: (lon: number, lat: number, zoom?: number) => void;
+  tracking: boolean;
+  setTracking: (v: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -20,4 +22,6 @@ export const useMapStore = create<MapState>((set, get) => ({
   flyToCmd: null,
   flyTo: (lon, lat, zoom) =>
     set({ flyToCmd: { lon, lat, zoom, seq: (get().flyToCmd?.seq ?? 0) + 1 } }),
+  tracking: false,
+  setTracking: (tracking) => set({ tracking }),
 }));

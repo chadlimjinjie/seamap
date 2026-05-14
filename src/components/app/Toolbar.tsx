@@ -1,17 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { RefreshCw, Radio, Settings } from 'lucide-react';
+import { RefreshCw, Radio, Settings, LocateFixed, Locate } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useVesselStore } from '@/lib/store/vesselStore';
+import { useMapStore } from '@/lib/store/mapStore';
+import { useGPSStore } from '@/lib/store/gpsStore';
 
 export default function Toolbar() {
   const vesselCount = useVesselStore((s) => s.vessels.size);
   const connectionState = useVesselStore((s) => s.connectionState);
   const purgeStale = useVesselStore((s) => s.purgeStale);
+  const tracking = useMapStore((s) => s.tracking);
+  const setTracking = useMapStore((s) => s.setTracking);
+  const flyTo = useMapStore((s) => s.flyTo);
+  const gpsFix = useGPSStore((s) => s.fix);
   const stateColor: Record<string, string> = {
     connected: 'text-green-500',
     connecting: 'text-yellow-500 animate-pulse',
@@ -56,6 +62,27 @@ export default function Toolbar() {
         }>
         </TooltipTrigger>
         <TooltipContent side="bottom">Remove vessels not seen in 10 minutes</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger render={
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={tracking ? 'Stop tracking GPS' : 'Track GPS position'}
+            disabled={!gpsFix}
+            onClick={() => {
+              const next = !tracking;
+              setTracking(next);
+              if (next && gpsFix) flyTo(gpsFix.lon, gpsFix.lat);
+            }}
+            className={`h-7 w-7 ${tracking ? 'text-primary bg-primary/10' : ''}`}
+          >
+            {tracking ? <LocateFixed className="w-3.5 h-3.5" /> : <Locate className="w-3.5 h-3.5" />}
+          </Button>
+        }>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{tracking ? 'Stop tracking GPS' : 'Track GPS position'}</TooltipContent>
       </Tooltip>
 
       <Tooltip>

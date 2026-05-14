@@ -54,11 +54,6 @@ export default function HazardPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Rerank when GPS moves
-  useEffect(() => {
-    if (gpsFix) rerank(gpsFix.lat, gpsFix.lon);
-  }, [gpsFix, rerank]);
-
   const isLoading = status === 'loading';
 
   return (

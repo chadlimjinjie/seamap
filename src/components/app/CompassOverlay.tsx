@@ -15,7 +15,7 @@ export default function CompassOverlay() {
     <div className="pointer-events-none">
       <div className="bg-background/80 backdrop-blur-sm border border-border rounded-full shadow-md p-1">
         <svg width="64" height="64" viewBox="-32 -32 64 64">
-          {/* Compass rose */}
+          {/* Compass rose — rotates so N always points to true north */}
           <g transform={`rotate(${roseAngle})`}>
             {/* Cardinal ticks */}
             {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
@@ -24,77 +24,49 @@ export default function CompassOverlay() {
                 x1={0}
                 y1={-28}
                 x2={0}
-                y2={deg % 90 === 0 ? -22 : -24}
+                y2={deg % 90 === 0 ? -22 : -25}
                 stroke="currentColor"
                 strokeWidth={deg % 90 === 0 ? 1.5 : 0.75}
-                strokeOpacity={0.6}
+                strokeOpacity={0.5}
                 transform={`rotate(${deg})`}
               />
             ))}
+            {/* North needle — red, always visible */}
+            <polygon points="0,-22 4,-8 0,-13 -4,-8" fill="#ef4444" fillOpacity={0.95} />
+            {/* South needle — muted */}
+            <polygon points="0,22 4,8 0,13 -4,8" fill="currentColor" fillOpacity={0.25} />
             {/* N label */}
             <text
               y={-16}
               textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="9"
+              dominantBaseline="auto"
+              fontSize="7"
               fontWeight="700"
               fill="#ef4444"
+              transform="translate(0,-9)"
             >
               N
             </text>
-            {/* S label */}
-            <text
-              y={18}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="7"
-              fill="currentColor"
-              fillOpacity={0.5}
-            >
-              S
-            </text>
-            {/* E label */}
-            <text
-              x={17}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="7"
-              fill="currentColor"
-              fillOpacity={0.5}
-            >
-              E
-            </text>
-            {/* W label */}
-            <text
-              x={-17}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="7"
-              fill="currentColor"
-              fillOpacity={0.5}
-            >
-              W
-            </text>
           </g>
 
-          {/* GPS heading needle */}
+          {/* GPS heading needle — only when device reports heading */}
           {needleAngle !== null && (
             <g transform={`rotate(${needleAngle})`}>
               <polygon
-                points="0,-24 3,-14 0,-18 -3,-14"
+                points="0,-26 2.5,-18 0,-21 -2.5,-18"
                 fill="#f97316"
                 fillOpacity={0.9}
               />
               <polygon
-                points="0,24 3,14 0,18 -3,14"
-                fill="currentColor"
+                points="0,26 2.5,18 0,21 -2.5,18"
+                fill="#f97316"
                 fillOpacity={0.3}
               />
             </g>
           )}
 
-          {/* Center dot — orange when GPS heading active */}
-          <circle r="2.5" fill={hasHeading ? '#f97316' : 'currentColor'} fillOpacity={0.7} />
+          {/* Center dot */}
+          <circle r="2.5" fill={hasHeading ? '#f97316' : '#ef4444'} fillOpacity={0.9} />
         </svg>
       </div>
     </div>

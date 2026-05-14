@@ -60,6 +60,7 @@ export default function MapView() {
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
 
     map.on('rotate', () => useMapStore.getState().setBearing(map.getBearing()));
+    map.on('dragstart', () => useMapStore.getState().setTracking(false));
 
     // Ensure canvas picks up correct dimensions after first paint
     requestAnimationFrame(() => map.resize());
@@ -372,6 +373,8 @@ export default function MapView() {
       if (!hasFlownToGPS.current) {
         hasFlownToGPS.current = true;
         map.flyTo({ center: [gpsFix.lon, gpsFix.lat], zoom: 13, duration: 1800 });
+      } else if (useMapStore.getState().tracking) {
+        map.easeTo({ center: [gpsFix.lon, gpsFix.lat], duration: 500 });
       }
 
       // Convert accuracy (metres) to approximate pixel radius at current zoom

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { fetchMaritimeFeatures, distanceKm, bearingDeg } from '../maritime/overpass';
 import type { MaritimeFeature } from '../maritime/overpass';
+import { useGPSStore } from './gpsStore';
 
 const CACHE_KEY = 'seamap-maritime-cache';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -134,12 +135,27 @@ export const useHazardStore = create<HazardStore>((set, get) => ({
   },
 
   rerank(lat, lon) {
-    const { allFeatures } = get();
+    const { allFeatures, selectedHazard } = get();
     if (!allFeatures.length) return;
     const { hazards, harbour } = rank(allFeatures, lat, lon);
-    set({ closestHazards: hazards, closestHarbour: harbour });
+    const updatedSelected = selectedHazard ? {
+      ...selectedHazard,
+      distanceKm: distanceKm(lat, lon, selectedHazard.lat, selectedHazard.lon),
+      distanceNm: distanceKm(lat, lon, selectedHazard.lat, selectedHazard.lon) / 1.852,
+      bearing: bearingDeg(lat, lon, selectedHazard.lat, selectedHazard.lon),
+    } : null;
+    set({ closestHazards: hazards, closestHarbour: harbour, selectedHazard: updatedSelected });
   },
 }));
+
+// Re-rank whenever GPS position changes, independent of mounted components
+if (typeof window !== 'undefined') {
+  useGPSStore.subscribe((state) => {
+    if (state.fix) {
+      useHazardStore.getState().rerank(state.fix.lat, state.fix.lon);
+    }
+  });
+}
 
 async function fetchAndCache(
   lat: number,
