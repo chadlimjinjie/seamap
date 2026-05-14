@@ -11,6 +11,8 @@ export default function GPSPanel() {
   const error = useGPSStore((s) => s.error);
   const startWatching = useGPSStore((s) => s.startWatching);
   const stopWatching = useGPSStore((s) => s.stopWatching);
+  const gpsOptions = useGPSStore((s) => s.gpsOptions);
+  const setGpsOptions = useGPSStore((s) => s.setGpsOptions);
 
   const isWatching = status === 'watching';
 
@@ -63,6 +65,46 @@ export default function GPSPanel() {
       {error && (
         <p className="text-xs text-destructive mt-1 break-words">{error}</p>
       )}
+
+      <Separator className="my-2" />
+
+      {/* Accuracy mode */}
+      <div className="mb-2">
+        <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Accuracy</div>
+        <div className="flex gap-1">
+          {([false, true] as const).map((val) => (
+            <button
+              key={String(val)}
+              onClick={() => setGpsOptions({ highAccuracy: val })}
+              className={`flex-1 rounded border py-1 text-[10px] font-medium transition-colors
+                ${gpsOptions.highAccuracy === val
+                  ? 'border-primary bg-primary/10 text-foreground'
+                  : 'border-border text-muted-foreground hover:border-primary/50'}`}
+            >
+              {val ? 'High' : 'Standard'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Maximum age */}
+      <div>
+        <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Max Cache Age</div>
+        <div className="flex gap-1">
+          {([{ label: 'Fresh', ms: 0 }, { label: '1 s', ms: 1000 }, { label: '5 s', ms: 5000 }, { label: '30 s', ms: 30000 }]).map(({ label, ms }) => (
+            <button
+              key={ms}
+              onClick={() => setGpsOptions({ maximumAge: ms })}
+              className={`flex-1 rounded border py-1 text-[10px] font-medium transition-colors
+                ${gpsOptions.maximumAge === ms
+                  ? 'border-primary bg-primary/10 text-foreground'
+                  : 'border-border text-muted-foreground hover:border-primary/50'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {fix && (
         <>

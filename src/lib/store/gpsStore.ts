@@ -12,13 +12,30 @@ export interface GPSFix {
   timestamp: number;
 }
 
+export interface GPSOptions {
+  highAccuracy: boolean; // enableHighAccuracy
+  maximumAge: number;    // ms
+}
+
 const PREF_KEY = 'seamap-gps-enabled';
+const GPS_OPTS_KEY = 'seamap-gps-options';
+const DEFAULT_GPS_OPTS: GPSOptions = { highAccuracy: false, maximumAge: 5000 };
 
 function readPref(): boolean {
   try { return localStorage.getItem(PREF_KEY) === 'true'; } catch { return false; }
 }
 function writePref(v: boolean): void {
   try { localStorage.setItem(PREF_KEY, String(v)); } catch {}
+}
+function readGPSOpts(): GPSOptions {
+  try {
+    const raw = localStorage.getItem(GPS_OPTS_KEY);
+    if (!raw) return DEFAULT_GPS_OPTS;
+    return { ...DEFAULT_GPS_OPTS, ...JSON.parse(raw) };
+  } catch { return DEFAULT_GPS_OPTS; }
+}
+function writeGPSOpts(opts: GPSOptions): void {
+  try { localStorage.setItem(GPS_OPTS_KEY, JSON.stringify(opts)); } catch {}
 }
 
 interface GPSStore {
@@ -27,9 +44,11 @@ interface GPSStore {
   error: string | null;
   watchId: number | null;
   enabled: boolean;
+  gpsOptions: GPSOptions;
 
   startWatching: () => void;
   stopWatching: () => void;
+  setGpsOptions: (opts: Partial<GPSOptions>) => void;
   _setFix: (fix: GPSFix) => void;
   _setError: (msg: string) => void;
 }
@@ -39,7 +58,8 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
   fix: null,
   error: null,
   watchId: null,
-  enabled: false, // hydrated by GPSAutoStart from localStorage
+  enabled: false,
+  gpsOptions: DEFAULT_GPS_OPTS,
 
   startWatching() {
     if (get().watchId != null) return;
@@ -50,6 +70,7 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
     }
     writePref(true);
     set({ status: 'watching', error: null, enabled: true });
+    const { highAccuracy, maximumAge } = get().gpsOptions;
     const id = navigator.geolocation.watchPosition(
       (pos) => {
         get()._setFix({
@@ -63,7 +84,7 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
         });
       },
       (err) => get()._setError(err.message),
-      { enableHighAccuracy: false, maximumAge: 5000 }
+      { enableHighAccuracy: highAccuracy, maximumAge },
     );
     set({ watchId: id });
   },
@@ -75,12 +96,28 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
     set({ status: 'idle', watchId: null, fix: null, error: null, enabled: false });
   },
 
+  setGpsOptions(opts) {
+    const next = { ...get().gpsOptions, ...opts };
+    writeGPSOpts(next);
+    set({ gpsOptions: next });
+    // Restart watch with new options if currently active
+    if (get().status === 'watching') {
+      const { watchId } = get();
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      set({ watchId: null });
+      get().startWatching();
+    }
+  },
+
   _setFix(fix) { set({ fix, error: null }); },
   _setError(msg) { set({ status: 'error', error: msg }); },
 }));
 
 /** Call once on client mount to restore persisted preference. */
 export function initGPSFromPref(): void {
+  if (typeof window !== 'undefined') {
+    useGPSStore.setState({ gpsOptions: readGPSOpts() });
+  }
   if (readPref()) useGPSStore.getState().startWatching();
   else useGPSStore.setState({ enabled: false });
 }
