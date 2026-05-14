@@ -1,6 +1,6 @@
 'use client';
 
-import { Anchor } from 'lucide-react';
+import { Anchor, Zap } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,20 @@ export default function AppSidebar({ variant, ...props }: AppSidebarProps) {
                 <Anchor className="size-4" />
               </div>
               <span className="font-semibold text-base">SeaMap</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarHeader className="border-b border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Quick Create"
+              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+            >
+              <Zap className="size-4" />
+              <span>Quick Action</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
