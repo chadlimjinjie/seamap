@@ -17,7 +17,7 @@ export default function HarbourOverlay() {
   if (!harbour) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 z-10 pointer-events-none bg-background/80 backdrop-blur-sm border border-border rounded-lg px-3 py-2 flex items-center gap-2 shadow-md">
+    <div className="pointer-events-none bg-background/80 backdrop-blur-sm border border-border rounded-lg px-3 py-2 flex items-center gap-2 shadow-md">
       <Anchor className="w-4 h-4 shrink-0 text-teal-400" />
       <div className="min-w-0">
         <div className="text-xs font-semibold leading-tight truncate max-w-[160px]">

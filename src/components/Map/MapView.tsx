@@ -20,6 +20,7 @@ export default function MapView() {
   const allFeatures = useHazardStore((s) => s.allFeatures);
   const closestHazards = useHazardStore((s) => s.closestHazards);
   const closestHarbour = useHazardStore((s) => s.closestHarbour);
+  const flyToCmd = useMapStore((s) => s.flyToCmd);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -257,6 +258,35 @@ export default function MapView() {
           'text-halo-width': 1.5,
         },
       });
+
+      // Hazard interactivity — show overlay on click
+      const onHazardClick = (e: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
+        const feature = e.features?.[0];
+        if (!feature) return;
+        const props = feature.properties as { id: number; name?: string; seamarkType?: string; closest?: boolean };
+        const store = useHazardStore.getState();
+        const ranked = [...store.closestHazards, ...store.allFeatures].find((f) => f.id === props.id);
+        if (ranked && 'distanceKm' in ranked) {
+          store.selectHazard(ranked as import('@/lib/store/hazardStore').RankedFeature);
+        } else if (ranked) {
+          // allFeatures entry — no distance data, select with null distances
+          store.selectHazard({ ...ranked, distanceKm: 0, distanceNm: 0, bearing: 0 });
+        }
+        e.preventDefault();
+      };
+
+      map.on('click', 'hazards-closest', onHazardClick);
+      map.on('click', 'hazards-all', onHazardClick);
+
+      map.on('click', (e) => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ['hazards-closest', 'hazards-all'] });
+        if (!features.length) useHazardStore.getState().selectHazard(null);
+      });
+
+      for (const layer of ['hazards-closest', 'hazards-all']) {
+        map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+      }
     });
 
     return () => {
@@ -373,6 +403,12 @@ export default function MapView() {
       return () => { map.off('load', update); };
     }
   }, [gpsFix]);
+
+  // Fly to commanded location (from sidebar hazard clicks)
+  useEffect(() => {
+    if (!flyToCmd || !mapRef.current) return;
+    mapRef.current.flyTo({ center: [flyToCmd.lon, flyToCmd.lat], zoom: flyToCmd.zoom ?? 14, duration: 1200 });
+  }, [flyToCmd]);
 
   // Sync hazard + harbour data to map sources
   useEffect(() => {

@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHazardStore } from '@/lib/store/hazardStore';
 import { useGPSStore } from '@/lib/store/gpsStore';
+import { useMapStore } from '@/lib/store/mapStore';
 import type { RankedFeature } from '@/lib/store/hazardStore';
 
 const HAZARD_LABEL: Record<string, string> = {
@@ -97,7 +98,7 @@ export default function HazardPanel() {
       {closestHazards.length > 0 && (
         <div className="space-y-0.5">
           {closestHazards.map((h) => (
-            <HazardRow key={h.id} feature={h} />
+            <HazardRow key={h.id} feature={h} onFlyTo={useMapStore.getState().flyTo} />
           ))}
         </div>
       )}
@@ -109,9 +110,12 @@ export default function HazardPanel() {
   );
 }
 
-function HazardRow({ feature }: { feature: RankedFeature }) {
+function HazardRow({ feature, onFlyTo }: { feature: RankedFeature; onFlyTo: (lon: number, lat: number, zoom?: number) => void }) {
   return (
-    <div className="flex items-center gap-1.5 px-1.5 py-0.5">
+    <button
+      className="w-full flex items-center gap-1.5 px-1.5 py-0.5 rounded hover:bg-accent/50 cursor-pointer text-left transition-colors"
+      onClick={() => onFlyTo(feature.lon, feature.lat, 15)}
+    >
       <div className="w-2 h-2 rounded-full bg-red-500/80 shrink-0" />
       <div className="flex-1 min-w-0">
         <span className="text-[10px] font-medium text-muted-foreground">
@@ -124,6 +128,6 @@ function HazardRow({ feature }: { feature: RankedFeature }) {
       <span className="text-[10px] text-muted-foreground shrink-0">
         {fmtDist(feature.distanceNm)} {fmtBearing(feature.bearing)}
       </span>
-    </div>
+    </button>
   );
 }

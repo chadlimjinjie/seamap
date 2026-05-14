@@ -12,7 +12,7 @@ export default function CompassOverlay() {
   const needleAngle = hasHeading ? gpsHeading! - bearing : null;
 
   return (
-    <div className="absolute top-4 right-4 z-10 pointer-events-none">
+    <div className="pointer-events-none">
       <div className="bg-background/80 backdrop-blur-sm border border-border rounded-full shadow-md p-1">
         <svg width="64" height="64" viewBox="-32 -32 64 64">
           {/* Compass rose */}

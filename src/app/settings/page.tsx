@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Satellite, Radio, Sun, Moon, Monitor } from 'lucide-react';
+import { ArrowLeft, Satellite, Radio, Sun, Moon, Monitor, Layout } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import GPSPanel from '@/components/app/GPSPanel';
 import ConnectionPanel from '@/components/AIS/ConnectionPanel';
+import { useSettingsStore, CORNER_CLASSES } from '@/lib/store/settingsStore';
+import type { Corner, OverlayPositions } from '@/lib/store/settingsStore';
 
 function SettingsCard({
   icon,
@@ -60,6 +62,71 @@ function ThemeCard() {
   );
 }
 
+const CORNER_LABELS: Record<Corner, { label: string; arrow: string }> = {
+  'top-left':     { label: 'Top left',     arrow: '↖' },
+  'top-right':    { label: 'Top right',    arrow: '↗' },
+  'bottom-left':  { label: 'Bottom left',  arrow: '↙' },
+  'bottom-right': { label: 'Bottom right', arrow: '↘' },
+};
+
+const CORNERS: Corner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+const OVERLAY_LABELS: { key: keyof OverlayPositions; label: string }[] = [
+  { key: 'compass',     label: 'Compass' },
+  { key: 'harbour',     label: 'Nearest Harbour' },
+  { key: 'hazardDetail', label: 'Hazard Detail' },
+];
+
+function CornerPicker({ value, onChange }: { value: Corner; onChange: (c: Corner) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-1 w-[88px]">
+      {CORNERS.map((c) => (
+        <button
+          key={c}
+          title={CORNER_LABELS[c].label}
+          onClick={() => onChange(c)}
+          className={`flex items-center justify-center rounded text-base h-9 transition-colors
+            ${value === c
+              ? 'bg-primary/15 border border-primary text-foreground'
+              : 'border border-border text-muted-foreground hover:border-primary/50'}`}
+        >
+          {CORNER_LABELS[c].arrow}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function OverlaysCard() {
+  const positions = useSettingsStore((s) => s.overlayPositions);
+  const setOverlayPosition = useSettingsStore((s) => s.setOverlayPosition);
+  const resetOverlayPositions = useSettingsStore((s) => s.resetOverlayPositions);
+
+  return (
+    <div className="divide-y divide-border">
+      {OVERLAY_LABELS.map(({ key, label }) => (
+        <div key={key} className="px-4 py-3 flex items-center justify-between gap-4">
+          <div>
+            <div className="text-xs font-medium">{label}</div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">
+              {CORNER_LABELS[positions[key]].label}
+            </div>
+          </div>
+          <CornerPicker value={positions[key]} onChange={(c) => setOverlayPosition(key, c)} />
+        </div>
+      ))}
+      <div className="px-4 py-2.5 flex justify-end">
+        <button
+          onClick={resetOverlayPositions}
+          className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
+        >
+          Reset to defaults
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -100,6 +167,14 @@ export default function SettingsPage() {
             description="Choose between light, dark, or system theme."
           >
             <ThemeCard />
+          </SettingsCard>
+
+          <SettingsCard
+            icon={<Layout className="w-4 h-4" />}
+            title="Overlays"
+            description="Choose which corner each map overlay appears in."
+          >
+            <OverlaysCard />
           </SettingsCard>
         </div>
       </main>

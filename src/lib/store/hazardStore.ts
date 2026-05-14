@@ -29,11 +29,13 @@ interface HazardStore {
   allFeatures: MaritimeFeature[];
   closestHazards: RankedFeature[];
   closestHarbour: RankedFeature | null;
+  selectedHazard: RankedFeature | null;
   lastFetchedAt: number | null;
   fromCache: boolean;
 
   load: (lat?: number, lon?: number) => Promise<void>;
   rerank: (lat: number, lon: number) => void;
+  selectHazard: (h: RankedFeature | null) => void;
 }
 
 function rank(features: MaritimeFeature[], lat: number, lon: number): {
@@ -75,8 +77,11 @@ export const useHazardStore = create<HazardStore>((set, get) => ({
   allFeatures: [],
   closestHazards: [],
   closestHarbour: null,
+  selectedHazard: null,
   lastFetchedAt: null,
   fromCache: false,
+
+  selectHazard: (h) => set({ selectedHazard: h }),
 
   async load(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
     // Prevent concurrent fetches
