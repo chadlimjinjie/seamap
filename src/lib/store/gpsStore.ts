@@ -63,7 +63,7 @@ export const useGPSStore = create<GPSStore>((set, get) => ({
         });
       },
       (err) => get()._setError(err.message),
-      { enableHighAccuracy: true, maximumAge: 5000 }
+      { enableHighAccuracy: false, maximumAge: 5000 }
     );
     set({ watchId: id });
   },
