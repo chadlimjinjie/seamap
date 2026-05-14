@@ -7,6 +7,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useVesselStore } from '@/lib/store/vesselStore';
 import { useGPSStore } from '@/lib/store/gpsStore';
 import { useHazardStore } from '@/lib/store/hazardStore';
+import { useMapStore } from '@/lib/store/mapStore';
 
 export default function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -56,6 +57,8 @@ export default function MapView() {
 
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+
+    map.on('rotate', () => useMapStore.getState().setBearing(map.getBearing()));
 
     // Ensure canvas picks up correct dimensions after first paint
     requestAnimationFrame(() => map.resize());

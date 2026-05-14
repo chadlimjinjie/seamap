@@ -7,6 +7,7 @@ import Toolbar from '@/components/app/Toolbar';
 import GPSAutoStart from '@/components/app/GPSAutoStart';
 import VesselDetails from '@/components/AIS/VesselDetails';
 import HarbourOverlay from '@/components/app/HarbourOverlay';
+import CompassOverlay from '@/components/app/CompassOverlay';
 
 const MapView = dynamic(() => import('@/components/Map/MapView'), { ssr: false });
 
@@ -27,6 +28,7 @@ export default function Home() {
         <Toolbar />
         <div className="relative flex-1 min-h-0">
           <MapView />
+          <CompassOverlay />
           <HarbourOverlay />
           <VesselDetails />
         </div>
