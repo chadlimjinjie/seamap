@@ -8,7 +8,8 @@ export default function CompassOverlay() {
   const gpsHeading = useGPSStore((s) => s.fix?.heading ?? null);
 
   const roseAngle = -bearing;
-  const needleAngle = gpsHeading !== null ? gpsHeading - bearing : null;
+  const hasHeading = gpsHeading !== null && !Number.isNaN(gpsHeading);
+  const needleAngle = hasHeading ? gpsHeading! - bearing : null;
 
   return (
     <div className="absolute top-4 right-4 z-10 pointer-events-none">
@@ -92,8 +93,8 @@ export default function CompassOverlay() {
             </g>
           )}
 
-          {/* Center dot */}
-          <circle r="2.5" fill="currentColor" fillOpacity={0.7} />
+          {/* Center dot — orange when GPS heading active */}
+          <circle r="2.5" fill={hasHeading ? '#f97316' : 'currentColor'} fillOpacity={0.7} />
         </svg>
       </div>
     </div>
