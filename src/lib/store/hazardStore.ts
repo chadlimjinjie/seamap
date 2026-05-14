@@ -49,7 +49,7 @@ function rank(features: MaritimeFeature[], lat: number, lon: number): {
 
   return {
     hazards: ranked.filter((f) => f.featureType === 'hazard').slice(0, 10),
-    harbour: ranked.find((f) => f.featureType === 'harbour') ?? null,
+    harbour: ranked.find((f) => f.featureType === 'harbour' && !!f.name) ?? null,
   };
 }
 
