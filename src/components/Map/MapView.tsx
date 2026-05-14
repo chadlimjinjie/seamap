@@ -55,10 +55,16 @@ export default function MapView() {
       center: [103.8198, 1.3521],
       zoom: 10,
       antialias: true,
+      minZoom: 3,
+      maxZoom: 19,
+      fadeDuration: 150,
+      pitchWithRotate: false,
+      renderWorldCopies: false,
     });
 
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'nautical' }), 'bottom-left');
 
     map.on('rotate', () => useMapStore.getState().setBearing(map.getBearing()));
     map.on('dragstart', () => useMapStore.getState().setTracking(false));
@@ -92,6 +98,8 @@ export default function MapView() {
         center: [lon, lat],
         ...(bearing != null ? { bearing } : {}),
         duration: 200,
+        easeId: 'gps-track',
+        noMoveStart: true,
       });
     });
 
