@@ -372,9 +372,20 @@ export default function MapView() {
       // Fly to GPS location on first fix
       if (!hasFlownToGPS.current) {
         hasFlownToGPS.current = true;
-        map.flyTo({ center: [gpsFix.lon, gpsFix.lat], zoom: 13, duration: 1800 });
+        const h0 = gpsFix.heading;
+        map.flyTo({
+          center: [gpsFix.lon, gpsFix.lat],
+          zoom: 13,
+          duration: 1800,
+          ...(h0 != null && !Number.isNaN(h0) ? { bearing: h0 } : {}),
+        });
       } else if (useMapStore.getState().tracking) {
-        map.easeTo({ center: [gpsFix.lon, gpsFix.lat], duration: 500 });
+        const heading = gpsFix.heading;
+        map.easeTo({
+          center: [gpsFix.lon, gpsFix.lat],
+          ...(heading != null && !Number.isNaN(heading) ? { bearing: heading } : {}),
+          duration: 500,
+        });
       }
 
       // Convert accuracy (metres) to approximate pixel radius at current zoom
