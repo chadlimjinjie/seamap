@@ -13,6 +13,7 @@ export default function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hasFlownToGPS = useRef(false);
+  const smoothedHeadingRef = useRef<number | null>(null);
   const vessels = useVesselStore((s) => s.vessels);
   const selectedMMSI = useVesselStore((s) => s.selectedMMSI);
   const selectVessel = useVesselStore((s) => s.selectVessel);
@@ -61,6 +62,38 @@ export default function MapView() {
 
     map.on('rotate', () => useMapStore.getState().setBearing(map.getBearing()));
     map.on('dragstart', () => useMapStore.getState().setTracking(false));
+
+    // Direct GPS subscription — bypasses React render cycle for low-latency tracking
+    const unsubGPS = useGPSStore.subscribe((state) => {
+      if (!map || !state.fix || !hasFlownToGPS.current) return;
+      if (!useMapStore.getState().tracking) return;
+
+      const { lon, lat, heading } = state.fix;
+
+      let bearing: number | undefined;
+      if (heading != null && !Number.isNaN(heading)) {
+        const prev = smoothedHeadingRef.current;
+        if (prev == null) {
+          smoothedHeadingRef.current = heading;
+          bearing = heading;
+        } else {
+          let diff = heading - prev;
+          while (diff > 180) diff -= 360;
+          while (diff < -180) diff += 360;
+          if (Math.abs(diff) > 2) {
+            const next = prev + 0.3 * diff;
+            smoothedHeadingRef.current = next;
+            bearing = next;
+          }
+        }
+      }
+
+      map.easeTo({
+        center: [lon, lat],
+        ...(bearing != null ? { bearing } : {}),
+        duration: 200,
+      });
+    });
 
     // Ensure canvas picks up correct dimensions after first paint
     requestAnimationFrame(() => map.resize());
@@ -291,6 +324,7 @@ export default function MapView() {
     });
 
     return () => {
+      unsubGPS();
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -378,13 +412,6 @@ export default function MapView() {
           zoom: 13,
           duration: 1800,
           ...(h0 != null && !Number.isNaN(h0) ? { bearing: h0 } : {}),
-        });
-      } else if (useMapStore.getState().tracking) {
-        const heading = gpsFix.heading;
-        map.easeTo({
-          center: [gpsFix.lon, gpsFix.lat],
-          ...(heading != null && !Number.isNaN(heading) ? { bearing: heading } : {}),
-          duration: 500,
         });
       }
 
